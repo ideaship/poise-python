@@ -73,7 +73,11 @@ with cmd._build_session(options) as session:
   finder = PackageFinder(**finder_options)
   find_all = getattr(finder, 'find_all_candidates', getattr(finder, '_find_all_versions', None))
   for arg in args:
-    req = InstallRequirement.from_line(arg)
+    try:
+      req = InstallRequirement.from_line(arg)
+    except AttributeError:
+      inreq_from_line = do_import('req.constructors', 'install_req_from_line')
+      req = inreq_from_line(arg)
     found = finder.find_requirement(req, True)
     all_candidates = find_all(req.name)
     candidate = [c for c in all_candidates if c.location == found]
